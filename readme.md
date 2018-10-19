@@ -1,7 +1,7 @@
-## Folder con già i JSON scaricati
+## Case 1: folder with all JSON
 
-Sul terminale, scrivere:
+Open terminal, write:
 
 `for manifest in * ; do iiif-flat-metadata $manifest; done > ../lista.json`
 
-Aprire il file `lista.json` con Openrefine.
+Open `lista.json` file with Openrefine.
