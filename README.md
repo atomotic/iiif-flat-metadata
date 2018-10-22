@@ -2,6 +2,10 @@
 
 Read an IIIF Manifest (from local file or remote URL) and output flattened metadata (multiple values are concatenated with `|`) suitable to be ingested in SOLR or edited with OpenRefine
 
+### Install
+
+    go get github.com/atomotic/iiif-flat-metadata
+
 ### Example
 
 ```
