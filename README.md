@@ -6,7 +6,7 @@ Read an IIIF Manifest (from local file or remote URL) and output flattened metad
 
     go get github.com/atomotic/iiif-flat-metadata
 
-### Example
+### Example: URL
 
 ```
 iiif-flat-metadata http://www.e-codices.unifr.ch/metadata/iiif/fmb-cb-0100/manifest.json  | jq
@@ -32,4 +32,9 @@ iiif-flat-metadata http://www.e-codices.unifr.ch/metadata/iiif/fmb-cb-0100/manif
   "Text Language": "Latin | French",
   "Title (English)": "Justinian I, Digestum Vetus"
 }
+```
+
+### Example: File
+```
+parallel iiif-flat-metadata "{} > {#}.json" :::: list.txt
 ```
