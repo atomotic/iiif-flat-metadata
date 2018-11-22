@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,15 +11,39 @@ import (
 	"github.com/utahta/go-openuri"
 )
 
+// preferred language for multilang properties
+const lang = "en"
+
 type Manifest struct {
 	Id          string `json:"@id"`
 	Label       string `json:"label"`
 	Attribution string `json:"attribution"`
 	Description string `json:"description"`
 	Metadata    []struct {
-		Label string `json:"label"`
-		Value string `json:"value"`
+		Label interface{} `json:"label"`
+		Value string      `json:"value"`
 	} `json:"metadata"`
+}
+
+type Label map[string]interface{}
+
+func getMetadataLabel(label interface{}) (string, error) {
+	switch label.(type) {
+	case string:
+		return label.(string), nil
+	case []interface{}:
+		for _, labels := range label.([]interface{}) {
+			resultLabel := Label(labels.(map[string]interface{}))
+
+			if resultLabel["@language"] == lang {
+				return resultLabel["@value"].(string), nil
+			} else {
+				return "", nil
+			}
+		}
+	}
+
+	return "", errors.New("errors")
 }
 
 func main() {
@@ -38,16 +63,23 @@ func main() {
 	m, _ := ioutil.ReadAll(o)
 
 	json.Unmarshal(m, &manifest)
+
 	metadata["@id"] = manifest.Id
 	metadata["Label"] = manifest.Label
 	metadata["Attribution"] = manifest.Attribution
 	metadata["Description"] = manifest.Description
 
 	for _, property := range manifest.Metadata {
-		if metadata[property.Label] != "" {
-			metadata[property.Label] = fmt.Sprintf("%s | %s", metadata[property.Label], property.Value)
-		} else {
-			metadata[property.Label] = property.Value
+		label, err := getMetadataLabel(property.Label)
+		if err != nil {
+			fmt.Println("err")
+		}
+		if label != "" {
+			if metadata[label] != "" {
+				metadata[label] = fmt.Sprintf("%s | %s", metadata[label], property.Value)
+			} else {
+				metadata[label] = property.Value
+			}
 		}
 	}
 
