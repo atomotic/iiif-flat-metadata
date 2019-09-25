@@ -7,12 +7,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
-	"github.com/utahta/go-openuri"
+	"github.com/atomotic/go-openuri"
 )
 
-// preferred language for multilang properties
 const lang = "en"
+const separator = "|"
 
 type Manifest struct {
 	Id          string `json:"@id"`
@@ -21,7 +22,7 @@ type Manifest struct {
 	Description string `json:"description"`
 	Metadata    []struct {
 		Label interface{} `json:"label"`
-		Value string      `json:"value"`
+		Value interface{} `json:"value"`
 	} `json:"metadata"`
 }
 
@@ -41,6 +42,21 @@ func getMetadataLabel(label interface{}) (string, error) {
 				return "", nil
 			}
 		}
+	}
+
+	return "", errors.New("errors")
+}
+
+func getMetadataValue(value interface{}) (string, error) {
+	switch value.(type) {
+	case string:
+		return value.(string), nil
+	case []interface{}:
+		ret := []string{}
+		for _, values := range value.([]interface{}) {
+			ret = append(ret, fmt.Sprintf("%s", values))
+		}
+		return strings.Join(ret, separator), nil
 	}
 
 	return "", errors.New("errors")
@@ -74,11 +90,14 @@ func main() {
 		if err != nil {
 			fmt.Println("err")
 		}
+
+		value, _ := getMetadataValue(property.Value)
+
 		if label != "" {
 			if metadata[label] != "" {
-				metadata[label] = fmt.Sprintf("%s | %s", metadata[label], property.Value)
+				metadata[label] = fmt.Sprintf("%s %s %s", metadata[label], separator, value)
 			} else {
-				metadata[label] = property.Value
+				metadata[label] = value
 			}
 		}
 	}
