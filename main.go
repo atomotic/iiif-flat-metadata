@@ -15,8 +15,9 @@ import (
 const lang = "en"
 const separator = "|"
 
+// Manifest ...
 type Manifest struct {
-	Id          string `json:"@id"`
+	ID          string `json:"@id"`
 	Label       string `json:"label"`
 	Attribution string `json:"attribution"`
 	Description string `json:"description"`
@@ -24,8 +25,12 @@ type Manifest struct {
 		Label interface{} `json:"label"`
 		Value interface{} `json:"value"`
 	} `json:"metadata"`
+	Thumbnail struct {
+		ID string `json:"@id"`
+	} `json:"thumbnail"`
 }
 
+// Label ...
 type Label map[string]interface{}
 
 func getMetadataLabel(label interface{}) (string, error) {
@@ -80,10 +85,11 @@ func main() {
 
 	json.Unmarshal(m, &manifest)
 
-	metadata["@id"] = manifest.Id
+	metadata["@id"] = manifest.ID
 	metadata["Label"] = manifest.Label
 	metadata["Attribution"] = manifest.Attribution
 	metadata["Description"] = manifest.Description
+	metadata["Thumbnail"] = manifest.Thumbnail.ID
 
 	for _, property := range manifest.Metadata {
 		label, err := getMetadataLabel(property.Label)
