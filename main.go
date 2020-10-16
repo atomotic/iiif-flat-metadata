@@ -36,7 +36,11 @@ type Label map[string]interface{}
 func getMetadataLabel(label interface{}) (string, error) {
 	switch label.(type) {
 	case string:
-		return label.(string), nil
+		if label.(string) != "" {
+			return label.(string), nil
+		}
+		return "_Untitled", nil
+
 	case []interface{}:
 		for _, labels := range label.([]interface{}) {
 			resultLabel := Label(labels.(map[string]interface{}))
